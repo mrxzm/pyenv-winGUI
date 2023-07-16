@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pyenv-winGUI", "pyenv-winGUI\pyenv-winGUI.csproj", "{F3E200DD-A841-4364-BB7E-DE8C40517774}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F3E200DD-A841-4364-BB7E-DE8C40517774}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3E200DD-A841-4364-BB7E-DE8C40517774}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3E200DD-A841-4364-BB7E-DE8C40517774}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3E200DD-A841-4364-BB7E-DE8C40517774}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FB68A134-133A-43F1-B03C-6AB7ED53882C}
+	EndGlobalSection
+EndGlobal
