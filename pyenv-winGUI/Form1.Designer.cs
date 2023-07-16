@@ -81,7 +81,7 @@
             button2.Name = "button2";
             button2.Size = new Size(86, 35);
             button2.TabIndex = 5;
-            button2.Text = "安装";
+            button2.Text = "安装&卸载";
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 

@@ -112,6 +112,80 @@ namespace pyenv_winGUI
             }
         }
 
+        /// <summary>
+        /// 卸载多个包
+        /// </summary>
+        /// <param name="versions"></param>
+        /// <returns></returns>
+        public static bool UninstallPythonPackages(string[] versions)
+        {
+            if (versions.Length <= 0)
+            {
+                return false;
+            }
+            string[] strings = new string[versions.Length];
+            for (int i = 0; i < versions.Length; i++)
+            {
+                strings[i] = "pyenv uninstall " + versions[i];
+            }
+            execCMDList(strings);
+            return true;
+        }
+
+        /// <summary>
+        /// 安装多个包
+        /// </summary>
+        /// <param name="versions"></param>
+        /// <returns></returns>
+        public static bool InstallPythonPackages(string[] versions)
+        {
+            if (versions.Length <= 0)
+            {
+                return false;
+            }
+            string[] strings = new string[versions.Length];
+            for (int i = 0; i < versions.Length; i++)
+            {
+                strings[i] = "pyenv install " + versions[i];
+            }
+            execCMDList(strings);
+            return true;
+        }
+
+        /// <summary>
+        /// 卸载指定包
+        /// </summary>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        public static bool execCMDList(string[] comment)
+        {
+            Thread t = new Thread(() =>
+            {
+                List<string> outputList = new List<string>();
+                using (Process pro = new Process())
+                {
+                    pro.StartInfo.FileName = "cmd.exe";
+                    pro.StartInfo.UseShellExecute = false;
+                    //pro.StartInfo.RedirectStandardError = true;
+                    pro.StartInfo.RedirectStandardInput = true;
+                    //pro.StartInfo.RedirectStandardOutput = true;
+                    pro.Start();
+                    foreach (string com in comment)
+                    {
+                        pro.StandardInput.WriteLine(com);//输入CMD命令
+                    }
+                    pro.StandardInput.WriteLine("echo Automatically exit after 10 seconds.");
+                    Thread.Sleep(1000 * 10);
+                    pro.StandardInput.WriteLine("exit");
+                    pro.StandardInput.AutoFlush = true;
+                    pro.WaitForExit();//等待程序执行完退出进程
+                    pro.Close();
+                }
+            });
+            t.Start();
+            return true;
+        }
+
 
 
         public static string execCMD(string command)

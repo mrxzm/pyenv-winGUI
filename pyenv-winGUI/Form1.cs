@@ -8,13 +8,14 @@ namespace pyenv_winGUI
         private CheckedListBox checkedListBox1;
 
         [DllImport("kernel32.dll")]
-        public static extern bool AllocConsole();
+        public static extern bool AllocConsole(); //显示控制台
+        [DllImport("kernel32.dll")]
+        public static extern Boolean FreeConsole(); //释放控制台、关闭控制台
 
         public Form1()
         {
             InitializeComponent();
             InitCheckedListBox();
-            AllocConsole();
             checkedListBox1.Items.Clear();
             if (EnvironmentVariable.IsContains())
             {
@@ -50,7 +51,7 @@ namespace pyenv_winGUI
         private void button1_Click(object sender, EventArgs e)
         {
             DialogResult msg = MessageBox.Show("正在初始化");
-            // 
+            // 写入环境变量
 
         }
 
@@ -91,7 +92,7 @@ namespace pyenv_winGUI
         /// <param name="e"></param>
         private void button2_Click(object sender, EventArgs e)
         {
-            
+
             List<string> systemList = Cmd.GetSystemPythonVersions();
             List<string> checkedList = checkedListBox1.CheckedItems.Cast<string>().ToList();
             // 获取选择的版本信息
@@ -103,11 +104,13 @@ namespace pyenv_winGUI
             {
                 msg = "请选择需要更新的包！";
             }
-            
+
             DialogResult dialogResult = MessageBox.Show(msg, "更新Python包", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (dialogResult == DialogResult.Yes)
             {
                 // 执行一个个卸载后安装
+                Cmd.UninstallPythonPackages(uninstallList.ToArray());
+                Cmd.InstallPythonPackages(installList.ToArray());
 
             }
         }
