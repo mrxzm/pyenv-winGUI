@@ -7,13 +7,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace pyenv_winGUI
+namespace pyenv_winGUI.utils
 {
     internal class Cmd
     {
         public Cmd()
         {
-            
+
         }
 
 
@@ -21,10 +21,10 @@ namespace pyenv_winGUI
         /// 获取Python 所有版本信息
         /// </summary>
         /// <returns></returns>
-        public static List<string> GetInstallPythonVersions() 
+        public static List<string> GetInstallPythonVersions()
         {
-            String cmdStr = "pyenv install --list";
-            String result = execCMD(cmdStr);
+            string cmdStr = "pyenv install --list";
+            string result = execCMD(cmdStr);
             List<string> list = new List<string>();
             list = result.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToList();
             for (int i = list.Count - 1; i >= 0; i--)
@@ -39,35 +39,38 @@ namespace pyenv_winGUI
             return list;
         }
 
-       
+
         /// <summary>
         /// 获取系统内已经安装的Python 版本信息
         /// </summary>
         /// <returns></returns>
         public static List<string> GetSystemPythonVersions()
         {
-            String cmdStr = "pyenv versions";
-            String result = execCMD(cmdStr);
-            List<string> list = result.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToList();
-            for (int i = list.Count - 1; i >= 0; i--)
+            List<string> list = new List<string>();
+            string cmdStr = "pyenv versions";
+            string result = execCMD(cmdStr);
+            if (!string.IsNullOrEmpty(result))
             {
-                if (list[i] == cmdStr 
-                    || list[i].EndsWith(">exit")
-                    || string.IsNullOrEmpty(list[i]))
+                list = result.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToList();
+                for (int i = list.Count - 1; i >= 0; i--)
                 {
-                    list.Remove(list[i]);
+                    if (list[i] == cmdStr
+                        || list[i].EndsWith(">exit")
+                        || string.IsNullOrEmpty(list[i]))
+                    {
+                        list.Remove(list[i]);
+                    }
+                }
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (list[i].Substring(0, 1) == "*")
+                    {
+                        list[i] = list[i].Substring(1);
+                        list[i] = list[i].Substring(0, list[i].IndexOf("(set by"));
+                    }
+                    list[i] = list[i].Trim();
                 }
             }
-            for (int i = 0; i < list.Count; i++)
-            {
-                if (list[i].Substring(0, 1) == "*") 
-                {
-                    list[i] = list[i].Substring(1);
-                    list[i] = list[i].Substring(0, list[i].IndexOf("(set by"));
-                }
-                list[i] = list[i].Trim();
-            }
-            //System.Console.WriteLine(result);
             return list;
         }
 
@@ -77,8 +80,12 @@ namespace pyenv_winGUI
         /// <returns></returns>
         public static string GetSystemRunPythonVersion()
         {
-            String cmdStr = "pyenv global";
-            String result = execCMD(cmdStr);
+            string cmdStr = "pyenv global";
+            string result = execCMD(cmdStr);
+            if (string.IsNullOrEmpty(result)) 
+            {
+                return null;
+            }
             List<string> list = result.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToList();
             for (int i = list.Count - 1; i >= 0; i--)
             {
@@ -101,9 +108,9 @@ namespace pyenv_winGUI
         {
             try
             {
-                String cmdStr = "pyenv global " + version;
-                String result = execCMD(cmdStr);
-                System.Console.WriteLine(result);
+                string cmdStr = "pyenv global " + version;
+                string result = execCMD(cmdStr);
+                Console.WriteLine(result);
                 return true;
             }
             catch (Exception)
@@ -190,7 +197,7 @@ namespace pyenv_winGUI
 
         public static string execCMD(string command)
         {
-            System.Diagnostics.Process pro = new System.Diagnostics.Process();
+            Process pro = new Process();
             pro.StartInfo.FileName = "cmd.exe";
             pro.StartInfo.UseShellExecute = false;
             pro.StartInfo.RedirectStandardError = true;
@@ -210,6 +217,6 @@ namespace pyenv_winGUI
 
         }
 
-        
+
     }
 }

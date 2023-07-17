@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
+using pyenv_winGUI.utils;
 
 namespace pyenv_winGUI
 {
@@ -12,27 +14,43 @@ namespace pyenv_winGUI
         [DllImport("kernel32.dll")]
         public static extern Boolean FreeConsole(); //释放控制台、关闭控制台
 
-        public Form1()
+        public Form1(string[] args)
         {
             InitializeComponent();
-            InitCheckedListBox();
-            checkedListBox1.Items.Clear();
+
             if (EnvironmentVariable.IsContains())
             {
-                pyenv_path.Text = EnvironmentVariable.GetPYENV();
-                button1.Enabled = false;
-                RefreshCheckedListBox();
-                RefreshVersion();
+                Init();
             }
             else
             {
                 pyenv_path.Text = "未配置";
                 button1.Enabled = true;
+                button2.Enabled = false;
+                button3.Enabled = false;
             }
-            //
+            // 重启拿到admin权限后设置环境变量
+            if (args.Length == 2 && args[0] == "install")
+            {
+                string intallPath = Encoding.UTF8.GetString(Convert.FromBase64String(args[1]));
+                EnvironmentVariable.SetPYENV(intallPath);
+                Init();
+            }
         }
 
-        public void InitCheckedListBox()
+        private void Init()
+        {
+            InitCheckedListBox();
+            checkedListBox1.Items.Clear();
+            pyenv_path.Text = EnvironmentVariable.IsContains() ? EnvironmentVariable.GetPYENV() : "";
+            button1.Enabled = false;
+            RefreshCheckedListBox();
+            RefreshVersion();
+            button2.Enabled = true;
+            button3.Enabled = true;
+        }
+
+        private void InitCheckedListBox()
         {
             checkedListBox1 = new ColorCodedCheckedListBox();
             // 
@@ -47,13 +65,48 @@ namespace pyenv_winGUI
             base.Controls.Add(checkedListBox1);
         }
 
-
+        /// <summary>
+        /// 下载并安装PYENV
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e)
         {
-            DialogResult msg = MessageBox.Show("正在初始化");
-            // 写入环境变量
-
+            string file = pyenv_path.Text;
+            // 选择路径
+            if (file == "未配置")
+            {
+                FolderBrowserDialog dialog = new FolderBrowserDialog();
+                dialog.Description = "请选择PYENV安装目录";
+                dialog.SelectedPath = file == "未配置" ? Directory.GetCurrentDirectory() : file;
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    file = dialog.SelectedPath;
+                    file = pyenv_path.Text = file + Path.DirectorySeparatorChar + "pyenv-win";
+                }
+            }
+            if (File.Exists(file))
+            {
+                MessageBox.Show(this, "文件夹路径不能为空", "提示");
+            }
+            else
+            {
+                // 选择版本窗口
+                InstallPyenvForm installPyenvForm = new InstallPyenvForm(file);
+                
+                installPyenvForm.RunRefresh += RefreshInstall;
+                installPyenvForm.ShowDialog();
+            }
         }
+
+        private void RefreshInstall() 
+        {
+            // 配置环境变量
+            EnvironmentVariable.SetPYENV(pyenv_path.Text);
+            Init();
+        }
+
+
 
         /// <summary>
         /// 选择 PYENV 文件夹
@@ -74,13 +127,10 @@ namespace pyenv_winGUI
                 }
                 else
                 {
-                    MessageBox.Show("已选择：" + file);
+                    //MessageBox.Show("已选择：" + file);
                     // 判断是否是PYENV的文件夹
-
-
-
+                    
                 }
-
             }
 
         }
@@ -111,7 +161,7 @@ namespace pyenv_winGUI
                 // 执行一个个卸载后安装
                 Cmd.UninstallPythonPackages(uninstallList.ToArray());
                 Cmd.InstallPythonPackages(installList.ToArray());
-
+                label3.Text = "安装成功！";
             }
         }
 

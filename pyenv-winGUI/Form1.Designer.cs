@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             button1 = new Button();
             label1 = new Label();
             pyenv_path = new TextBox();
@@ -45,7 +46,7 @@
             button1.Name = "button1";
             button1.Size = new Size(108, 23);
             button1.TabIndex = 0;
-            button1.Text = "初始化环境变量";
+            button1.Text = "安装PYENV";
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
             // 
@@ -81,7 +82,7 @@
             button2.Name = "button2";
             button2.Size = new Size(86, 35);
             button2.TabIndex = 5;
-            button2.Text = "安装&卸载";
+            button2.Text = "安装-卸载";
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 
@@ -90,9 +91,8 @@
             label3.AutoSize = true;
             label3.Location = new Point(139, 415);
             label3.Name = "label3";
-            label3.Size = new Size(68, 17);
+            label3.Size = new Size(0, 17);
             label3.TabIndex = 6;
-            label3.Text = "安装成功！";
             // 
             // label4
             // 
@@ -137,6 +137,7 @@
             Controls.Add(label1);
             Controls.Add(button1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "pyenv-win GUI";

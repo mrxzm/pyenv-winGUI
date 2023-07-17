@@ -8,6 +8,7 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using pyenv_winGUI.utils;
 
 namespace pyenv_winGUI
 {
@@ -43,7 +44,7 @@ namespace pyenv_winGUI
         /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e)
         {
-            if (comboBox1.SelectedIndex == 0)
+            if (comboBox1.SelectedItem == null)
             {
                 MessageBox.Show("未选择版本");
                 return;
