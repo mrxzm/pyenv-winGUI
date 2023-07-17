@@ -18,7 +18,7 @@ namespace pyenv_winGUI.utils
 
 
         /// <summary>
-        /// 获取Python 所有版本信息
+        /// 获取 Python 所有版本信息
         /// </summary>
         /// <returns></returns>
         public static List<string> GetInstallPythonVersions()
@@ -97,7 +97,7 @@ namespace pyenv_winGUI.utils
                 }
             }
             //System.Console.WriteLine(result);
-            return list[0];
+            return list.Count == 0 ? null : list[0];
         }
 
         /// <summary>

@@ -57,10 +57,13 @@ namespace pyenv_winGUI
             // checkedListBox1
             // 
             checkedListBox1.FormattingEnabled = true;
-            checkedListBox1.Location = new Point(47, 87);
+            int x = label2.Location.X;
+            int y = label2.Location.Y + label2.Size.Height + 3;
+            checkedListBox1.Location = new Point(x, y);
             checkedListBox1.MultiColumn = true;
             checkedListBox1.Name = "checkedListBox1";
-            checkedListBox1.Size = new Size(699, 310);
+            // 
+            checkedListBox1.Size = new Size(this.Width - x * 2, button2.Location.Y - y);
             checkedListBox1.TabIndex = 4;
             base.Controls.Add(checkedListBox1);
         }
