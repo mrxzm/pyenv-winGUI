@@ -59,7 +59,7 @@ namespace pyenv_winGUI
                     e.Font,
                     new Rectangle(e.Bounds.Location, e.Bounds.Size),
                     e.Index,
-                    (e.State & DrawItemState.Focus) == DrawItemState.Focus ? DrawItemState.Focus : DrawItemState.None, /* Remove 'selected' state so that the base.OnDrawItem doesn't obliterate the work we are doing here. */
+                    (e.State & DrawItemState.Focus) == DrawItemState.Focus ? DrawItemState.Focus : DrawItemState.None, /* 删除“selected”状态，以便基础.OnDrawItem不会抹杀我们在这里所做的工作 */
                     textColor,
                     this.BackColor);
 

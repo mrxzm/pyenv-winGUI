@@ -128,6 +128,7 @@ namespace pyenv_winGUI.utils
         {
             if (versions.Length <= 0)
             {
+                EventCMDComplete("uninstall");
                 return false;
             }
             string[] strings = new string[versions.Length];
@@ -135,7 +136,7 @@ namespace pyenv_winGUI.utils
             {
                 strings[i] = "pyenv uninstall " + versions[i];
             }
-            execCMDList(strings);
+            execCMDList(strings, "uninstall");
             return true;
         }
 
@@ -148,6 +149,7 @@ namespace pyenv_winGUI.utils
         {
             if (versions.Length <= 0)
             {
+                EventCMDComplete("install");
                 return false;
             }
             string[] strings = new string[versions.Length];
@@ -155,18 +157,30 @@ namespace pyenv_winGUI.utils
             {
                 strings[i] = "pyenv install " + versions[i];
             }
-            execCMDList(strings);
+            execCMDList(strings, "install");
             return true;
         }
 
         /// <summary>
-        /// 卸载指定包
+        /// 刷新PYENV 版本列表
         /// </summary>
-        /// <param name="version"></param>
         /// <returns></returns>
-        public static bool execCMDList(string[] comment)
+        public static bool UpdatePYENVVersionList()
         {
-            Thread t = new Thread(() =>
+            string[] cmd = new string[1];
+            cmd[0] = "pyenv update";
+            execCMDList(cmd, "update");
+            return true;
+        }
+
+        /// <summary>
+        /// 在页面显示的执行多条命令
+        /// </summary>
+        /// <param name="comment"></param>
+        /// <returns></returns>
+        public static bool execCMDList(string[] comment, string action)
+        {
+            Task task = Task.Run(() =>
             {
                 List<string> outputList = new List<string>();
                 using (Process pro = new Process())
@@ -188,10 +202,15 @@ namespace pyenv_winGUI.utils
                     pro.WaitForExit();//等待程序执行完退出进程
                     pro.Close();
                 }
+            }).ContinueWith(m => {
+                // 提示完成
+                EventCMDComplete(action);
             });
-            t.Start();
             return true;
         }
+
+        public delegate void EventCMDCompleteHandle(string action);
+        public static event EventCMDCompleteHandle EventCMDComplete;
 
 
 

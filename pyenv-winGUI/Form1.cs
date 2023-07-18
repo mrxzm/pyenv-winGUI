@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 using pyenv_winGUI.utils;
 
 namespace pyenv_winGUI
@@ -8,6 +9,7 @@ namespace pyenv_winGUI
     public partial class Form1 : Form
     {
         private CheckedListBox checkedListBox1;
+        private List<string> installList;
 
         [DllImport("kernel32.dll")]
         public static extern bool AllocConsole(); //显示控制台
@@ -65,8 +67,10 @@ namespace pyenv_winGUI
             // 
             checkedListBox1.Size = new Size(this.Width - x * 2, button2.Location.Y - y);
             checkedListBox1.TabIndex = 4;
+            //checkedListBox1.ColumnWidth = 3100;
             base.Controls.Add(checkedListBox1);
         }
+
 
         /// <summary>
         /// 下载并安装PYENV
@@ -96,13 +100,13 @@ namespace pyenv_winGUI
             {
                 // 选择版本窗口
                 InstallPyenvForm installPyenvForm = new InstallPyenvForm(file);
-                
+
                 installPyenvForm.RunRefresh += RefreshInstall;
                 installPyenvForm.ShowDialog();
             }
         }
 
-        private void RefreshInstall() 
+        private void RefreshInstall()
         {
             // 配置环境变量
             EnvironmentVariable.SetPYENV(pyenv_path.Text);
@@ -132,7 +136,7 @@ namespace pyenv_winGUI
                 {
                     //MessageBox.Show("已选择：" + file);
                     // 判断是否是PYENV的文件夹
-                    
+
                 }
             }
 
@@ -149,22 +153,26 @@ namespace pyenv_winGUI
             List<string> systemList = Cmd.GetSystemPythonVersions();
             List<string> checkedList = checkedListBox1.CheckedItems.Cast<string>().ToList();
             // 获取选择的版本信息
-            List<string> installList = checkedList.Except(systemList).ToList();
+            installList = checkedList.Except(systemList).ToList();
             List<string> uninstallList = systemList.Except(checkedList).ToList();
-            string msg = "即将安装：" + string.Join(", ", installList);
-            msg += "\r\n卸载：" + string.Join(", ", uninstallList);
             if (installList.Count <= 0 && uninstallList.Count <= 0)
             {
-                msg = "请选择需要更新的包！";
+                MessageBox.Show("请选择需要更新的包！", "更新Python包", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                return;
             }
-
+            string msg = "即将安装：" + string.Join(", ", installList);
+            msg += "\r\n卸载：" + string.Join(", ", uninstallList);
             DialogResult dialogResult = MessageBox.Show(msg, "更新Python包", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (dialogResult == DialogResult.Yes)
             {
-                // 执行一个个卸载后安装
+                // 执行卸载后安装
+                label3.Text = "正在执行。。。";
+                button2.Enabled = false;
+                button3.Enabled = false;
+                button4.Enabled = false;
+                checkedListBox1.Enabled = false;
                 Cmd.UninstallPythonPackages(uninstallList.ToArray());
-                Cmd.InstallPythonPackages(installList.ToArray());
-                label3.Text = "安装成功！";
+
             }
         }
 
@@ -174,7 +182,9 @@ namespace pyenv_winGUI
         public void RefreshCheckedListBox()
         {
             // 给选择框初始值
-            checkedListBox1.Items.AddRange(Cmd.GetInstallPythonVersions().ToArray());
+            string[] list = Cmd.GetInstallPythonVersions().ToArray();
+            checkedListBox1.Items.AddRange(list);
+            string maxItem = list.Where(w => w.Length == list.Max(x => x.Length)).First();
             List<string> checkList = Cmd.GetSystemPythonVersions();
             foreach (var item in checkList)
             {
@@ -185,6 +195,10 @@ namespace pyenv_winGUI
                 }
                 checkedListBox1.SetItemChecked(index, true);
             }
+            SizeF size = this.CreateGraphics().MeasureString(maxItem, checkedListBox1.Font);
+            int columnWidth = (int)(size.Width + 25);
+            checkedListBox1.ColumnWidth = columnWidth > 1000 ? 1000 : columnWidth;
+            checkedListBox1.Refresh();
         }
 
         /// <summary>
@@ -206,7 +220,7 @@ namespace pyenv_winGUI
         private void RefreshVersion()
         {
             string version = Cmd.GetSystemRunPythonVersion();
-            if (string.IsNullOrEmpty(version))
+            if (string.IsNullOrEmpty(version) || version == "no global version configured")
             {
                 label5.Text = "无";
             }
@@ -215,6 +229,43 @@ namespace pyenv_winGUI
                 label5.Text = version;
             }
 
+        }
+
+        /// <summary>
+        /// 重新拉取列表数据
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button4_Click(object sender, EventArgs e)
+        {
+            // 从源更新
+            Cmd.UpdatePYENVVersionList();
+
+            RefreshCheckedListBox();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Cmd.EventCMDCompleteHandle foo = null;
+            foo = delegate (string action)
+            {
+                this.Invoke(() => {
+                    if (action == "install")
+                    {
+                        label3.Text = "安装成功！";
+                        button2.Enabled = true;
+                        button3.Enabled = true;
+                        button4.Enabled = true;
+                        checkedListBox1.Enabled = true;
+                    }
+                    else if (action == "uninstall")
+                    {
+                        label3.Text = "卸载成功。正在安装...";
+                        Cmd.InstallPythonPackages(installList.ToArray());
+                    }
+                });
+            };
+            Cmd.EventCMDComplete += foo;
         }
     }
 }
